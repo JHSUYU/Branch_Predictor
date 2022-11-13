@@ -83,10 +83,10 @@ make_prediction(uint32_t pc)
     return TAKEN;
   case GSHARE:
   {
-    uint8_t displacement_bit_num=32-ghistoryBits;
-    uint32_t bht_index = gshare.GlobalHistoryRecord^((pc<<displacement_bit_num)>>displacement_bit_num);
-    // if BHT does not contain the index, pred_result will be 0(default NOTTAKEN)
-    uint32_t pred_result = gshare.BranchHistoryTable[bht_index];
+    uint8_t displacement_bit_num = 32 - ghistoryBits;
+    uint32_t bht_index = gshare.GlobalHistoryRecord ^ ((pc << displacement_bit_num) >> displacement_bit_num);
+    // if BHT does not contain the index, pred_result will be 1(weak not taken)
+    uint32_t pred_result = gshare.BranchHistoryTable.count(bht_index) == 0 ? WN : gshare.BranchHistoryTable[bht_index];
     if (pred_result <= WN)
     {
       return NOTTAKEN;
@@ -114,28 +114,44 @@ make_prediction(uint32_t pc)
 
 void train_gshare_predictor(uint32_t pc, uint8_t outcome)
 {
-  uint8_t displacement_bit_num=32-ghistoryBits;
-  uint32_t bht_index = gshare.GlobalHistoryRecord^((pc<<displacement_bit_num)>>displacement_bit_num);
-  int8_t new_value=0;
+  uint8_t displacement_bit_num = 32 - ghistoryBits;
+  //use lower bit of pc to XOR with global history record
+  uint32_t bht_index = gshare.GlobalHistoryRecord ^ ((pc << displacement_bit_num) >> displacement_bit_num);
+  int8_t new_value;
   if (outcome == TAKEN)
   {
-    new_value = ++gshare.BranchHistoryTable[bht_index];
-    if (new_value > 3)
+    // default value of bht is wake not taken
+    if (gshare.BranchHistoryTable.count(bht_index) == 0)
     {
-      new_value = int8_t(3);
+      new_value = WT;
+    }
+    else
+    {
+      new_value = ++gshare.BranchHistoryTable[bht_index];
+      if (new_value > 3)
+      {
+        new_value = int8_t(3);
+      }
     }
     gshare.BranchHistoryTable[bht_index] = new_value;
   }
   else
   {
-    new_value = --gshare.BranchHistoryTable[bht_index];
-    if (new_value < 0)
+    if (gshare.BranchHistoryTable.count(bht_index) == 0)
     {
-      new_value = int8_t(0);
+      new_value = SN;
+    }
+    else
+    {
+      new_value = --gshare.BranchHistoryTable[bht_index];
+      if (new_value < 0)
+      {
+        new_value = int8_t(0);
+      }
     }
     gshare.BranchHistoryTable[bht_index] = new_value;
   }
-  gshare.GlobalHistoryRecord = (gshare.GlobalHistoryRecord<<1) | uint32_t(outcome);
+  gshare.GlobalHistoryRecord = (gshare.GlobalHistoryRecord << 1) | uint32_t(outcome);
 }
 
 void train_predictor(uint32_t pc, uint8_t outcome)
