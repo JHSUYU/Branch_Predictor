@@ -38,6 +38,11 @@ extern const char *bpName[];
 #define WT  2			// predict T, weak taken
 #define ST  3			// predict T, strong taken
 
+#define STRONGLY_LOCAL 3
+#define WEAKLY_LOCAL 2
+#define WEAKLY_GLOBAL 1
+#define STRONGLY_GLOBAL 0
+
 //------------------------------------//
 //      Predictor Configuration       //
 //------------------------------------//
