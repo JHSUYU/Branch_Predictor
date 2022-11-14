@@ -119,10 +119,10 @@ make_prediction(uint32_t pc)
     return TAKEN;
   case GSHARE:
   {
-    uint8_t displacement_bit_num = 32 - ghistoryBits;
-    uint32_t bht_index = gshare.GlobalHistoryRecord ^ ((pc << displacement_bit_num) >> displacement_bit_num);
+    uint8_t displacementBitNum = 32 - ghistoryBits;
+    uint32_t bhtIndex = gshare.GlobalHistoryRecord ^ ((pc << displacementBitNum) >> displacementBitNum);
     // if BHT does not contain the index, pred_result will be 1(weak not taken)
-    int8_t pred_result = gshare.BranchHistoryTable.count(bht_index) == 0 ? WN : gshare.BranchHistoryTable[bht_index];
+    int8_t pred_result = gshare.BranchHistoryTable.count(bhtIndex) == 0 ? WN : gshare.BranchHistoryTable[bhtIndex];
     if (pred_result <= WN)
     {
       return NOTTAKEN;
