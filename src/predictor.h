@@ -30,6 +30,12 @@ extern const char *email;
 #define GSHARE      1
 #define TOURNAMENT  2
 #define CUSTOM      3
+
+#define SLocal  0			// predict Local Result, strong Local
+#define WLocal  1			// predict Local, weak local
+#define WGlobal  2			// predict Global, weak global
+#define SGlobal  3			// predict Global, strong global
+
 extern const char *bpName[];
 
 // Definitions for 2-bit counters
@@ -52,6 +58,7 @@ extern int pcIndexBits;  // Number of bits used for PC index
 extern int bpType;       // Branch Prediction Type
 extern int verbose;
 
+#define LENGTH 32
 //------------------------------------//
 //    Predictor Function Prototypes   //
 //------------------------------------//
